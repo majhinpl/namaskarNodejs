@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include("../partials/head") %>
+        <link rel="stylesheet" href="/global.css">
+        <title>Ask a Question</title>
+</head>
+
+<body>
+    <%- include("../partials/navbar") %>
+        <div class="home-container">
+            <form action="/askQuestion" method="post" enctype="multipart/form-data">
+                <input type="text" name="title" placeholder="Enter your question" required>
+                <input type="file" name="image" required>
+                <textarea name="description" id="description" cols="30" rows="10"
+                    placeholder="Describe your question..."></textarea>
+                <input type="submit" value="Ask Question">
+            </form>
+        </div>
+</body>
+
+</html>

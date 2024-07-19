@@ -1,15 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const authController = require("../controllers/authController");
+const {
+  renderRegisterPage,
+  handleRegister,
+  renderLoginPage,
+  handleLogin,
+} = require("../controllers/authController");
+const { errorHandler } = require("../utils/catchAsyncError");
 
 router
   .route("/register")
-  .get(authController.getRegister)
-  .post(authController.postRegister);
+  .get(renderRegisterPage)
+  .post(errorHandler(handleRegister));
 
-router
-  .route("/login")
-  .get(authController.getLogin)
-  .post(authController.postLogin);
+router.route("/login").get(renderLoginPage).post(errorHandler(handleLogin));
 
 module.exports = router;
