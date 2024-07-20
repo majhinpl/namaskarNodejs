@@ -1,6 +1,9 @@
 const { users } = require("../database");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("../utils/mailSender");
+const { text } = require("express");
+const { isAuthenticated } = require("../middleware/isAuthenticated");
 
 exports.renderRegisterPage = (req, res) => {
   res.render("auth/register");
@@ -35,6 +38,12 @@ exports.handleRegister = async (req, res) => {
     username,
     email,
     password: bcrypt.hashSync(password, 9),
+  });
+
+  sendEmail({
+    email: email,
+    subject: "Registration Successful",
+    text: `${username}, Welcome to our Team.`,
   });
 
   res.redirect("/auth/login");
@@ -75,6 +84,36 @@ exports.handleLogin = async (req, res) => {
   } else {
     res.send("User not found!");
   }
+};
 
-  // res.redirect("/");
+exports.renderForgetPasswordPage = (req, res) => {
+  res.render("./auth/resetPasswordPage");
+};
+
+exports.handleForgetPassword = async (req, res) => {
+  const { email } = req.body;
+  const data = await users.findAll({
+    where: {
+      email: email,
+    },
+  });
+
+  if (data.length === 0) return res.send("Invalid user");
+
+  const otp = Math.floor(Math.random() * 1000) + 9999;
+
+  // send that otp to above incoming email
+  await sendEmail({
+    email: email,
+    subject: "Your reset password OTP",
+    text: `Your otp is ${otp}`,
+  });
+  data[0].otp = otp;
+  await data[0].save();
+
+  res.redirect("verifyOtp");
+};
+
+exports.renderVerifyOtpPage = (req, res) => {
+  res.render("./auth/verifyOtp");
 };

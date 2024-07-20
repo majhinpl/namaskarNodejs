@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <%- include("./partials/head") %>
-    <link rel="stylesheet" href="/global.css">
+  <head>
+    <%- include("./partials/head") %>
+    <link rel="stylesheet" href="/global.css" />
     <title>Home page</title>
-</head>
+  </head>
 
-<body>
-  <%- include("partials/navbar") %>
+  <body>
+    <%- include("./partials/navbar") %>
     <div class="home-container">
       <h1>Welcome to Our Website</h1>
       <p>This is the home page.</p>
     </div>
-</body>
 
+    <div class="questions-list">
+      <% data.forEach((item) => { %>
+      <div
+        class="question-item"
+        onclick="window.location.href=`/question/<%- item.id %>`"
+      >
+        <div class="question-title"><%- item.title %></div>
+        <div class="question-author">
+          Asked by: <i><%- item.user.username %></i>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </body>
 </html>

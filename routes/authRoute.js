@@ -5,6 +5,10 @@ const {
   handleRegister,
   renderLoginPage,
   handleLogin,
+  renderForgetPasswordPage,
+  handleForgetPassword,
+  renderVerifyOtpPage,
+  logout,
 } = require("../controllers/authController");
 const { errorHandler } = require("../utils/catchAsyncError");
 
@@ -15,4 +19,10 @@ router
 
 router.route("/login").get(renderLoginPage).post(errorHandler(handleLogin));
 
+router
+  .route("/forgetPassword")
+  .get(renderForgetPasswordPage)
+  .post(errorHandler(handleForgetPassword));
+
+router.route("/verifyOtp").get(renderVerifyOtpPage);
 module.exports = router;
