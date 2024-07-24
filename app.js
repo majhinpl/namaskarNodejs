@@ -48,7 +48,7 @@ app.get("/", async (req, res) => {
   res.render("index", { data });
 });
 
-app.use("/auth", authRoute);
+app.use("/", authRoute);
 app.use("/", questionRoute);
 app.use("/answer", answerRoute);
 

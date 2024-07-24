@@ -8,7 +8,9 @@ const {
   renderForgetPasswordPage,
   handleForgetPassword,
   renderVerifyOtpPage,
-  logout,
+  verifyOtp,
+  renderResetPassword,
+  handleResetPassword,
 } = require("../controllers/authController");
 const { errorHandler } = require("../utils/catchAsyncError");
 
@@ -25,4 +27,11 @@ router
   .post(errorHandler(handleForgetPassword));
 
 router.route("/verifyOtp").get(renderVerifyOtpPage);
+
+router.route("/verifyOtp/:id").post(verifyOtp);
+
+router.route("/resetPassword/").get(renderResetPassword);
+
+router.route("/resetPassword/:email/:otp").post(handleResetPassword);
+
 module.exports = router;
