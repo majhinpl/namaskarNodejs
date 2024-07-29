@@ -11,6 +11,7 @@ const {
   verifyOtp,
   renderResetPassword,
   handleResetPassword,
+  logout,
 } = require("../controllers/authController");
 const { errorHandler } = require("../utils/catchAsyncError");
 
@@ -23,15 +24,19 @@ router.route("/login").get(renderLoginPage).post(errorHandler(handleLogin));
 
 router
   .route("/forgetPassword")
-  .get(renderForgetPasswordPage)
+  .get(errorHandler(renderForgetPasswordPage))
   .post(errorHandler(handleForgetPassword));
 
-router.route("/verifyOtp").get(renderVerifyOtpPage);
+router.route("/verifyOtp").get(errorHandler(renderVerifyOtpPage));
 
-router.route("/verifyOtp/:id").post(verifyOtp);
+router.route("/verifyOtp/:id").post(errorHandler(verifyOtp));
 
-router.route("/resetPassword/").get(renderResetPassword);
+router.route("/resetPassword/").get(errorHandler(renderResetPassword));
 
-router.route("/resetPassword/:email/:otp").post(handleResetPassword);
+router
+  .route("/resetPassword/:email/:otp")
+  .post(errorHandler(handleResetPassword));
+
+router.route("/logout").get(errorHandler(logout));
 
 module.exports = router;

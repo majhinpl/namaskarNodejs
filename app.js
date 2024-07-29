@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const session = require("express-session");
+const flash = require("connect-flash");
 const dotenv = require("dotenv");
 dotenv.config();
 const PORT = process.env.PORT;
@@ -17,6 +19,14 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true })); // SSR techstacks
 app.use(express.json()); // CSR techstacks
 app.use(cookieParser());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(flash());
 
 app.use(async (req, res, next) => {
   const token = req.cookies.jwtToken;
@@ -37,6 +47,7 @@ app.use(async (req, res, next) => {
 });
 
 app.get("/", async (req, res) => {
+  const [success] = req.flash("success");
   const data = await questions.findAll({
     include: [
       {
@@ -45,7 +56,7 @@ app.get("/", async (req, res) => {
       },
     ],
   }); // return in array
-  res.render("index", { data });
+  res.render("index", { data, success });
 });
 
 app.use("/", authRoute);

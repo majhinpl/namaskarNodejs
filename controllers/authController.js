@@ -49,7 +49,9 @@ exports.handleRegister = async (req, res) => {
 };
 
 exports.renderLoginPage = (req, res) => {
-  res.render("auth/login");
+  const [error] = req.flash("error");
+  console.log(error);
+  res.render("auth/login", { error });
 };
 
 exports.handleLogin = async (req, res) => {
@@ -76,12 +78,14 @@ exports.handleLogin = async (req, res) => {
       });
 
       res.cookie("jwtToken", token);
+      req.flash("success", "Logged in successfully");
       res.redirect("/");
     } else {
       res.send("Invalid password");
     }
   } else {
-    res.send("User not found!");
+    req.flash("error", "invalid email");
+    res.redirect("/login");
   }
 };
 
@@ -187,4 +191,9 @@ exports.handleResetPassword = async (req, res) => {
   } else {
     res.send("otp expired !!");
   }
+};
+
+exports.logout = (req, res) => {
+  res.clearCookie("jwtToken");
+  res.redirect("/login");
 };
