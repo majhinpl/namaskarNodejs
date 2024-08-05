@@ -11,7 +11,7 @@ const upload = multer({ storage: storage });
 const router = require("express").Router();
 
 router
-  .route("/a")
+  .route("/askQuestion")
   .get(renderAskQuestionPage)
   .post(isAuthenticated, upload.single("image"), askQuestion);
 

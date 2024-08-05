@@ -1,5 +1,5 @@
-const { where } = require("sequelize");
-const { questions, users, answers } = require("../database");
+const { where, QueryTypes } = require("sequelize");
+const { questions, users, answers, sequelize } = require("../database");
 
 exports.renderAskQuestionPage = (req, res) => {
   res.render("questions/askQuestion");
@@ -49,6 +49,11 @@ exports.renderSingleQuestionPage = async (req, res) => {
     ],
   });
 
+  const likes = await sequelize.query(`SELECT * FROM likes_${id}`, {
+    type: QueryTypes.SELECT,
+  });
+  const count = likes.length;
+
   const answersData = await answers.findAll({
     where: {
       questionId: id,
@@ -60,5 +65,9 @@ exports.renderSingleQuestionPage = async (req, res) => {
       },
     ],
   });
-  res.render("./questions/singleQuestion", { data, answers: answersData });
+  res.render("./questions/singleQuestion", {
+    data,
+    answers: answersData,
+    likes: count,
+  });
 };

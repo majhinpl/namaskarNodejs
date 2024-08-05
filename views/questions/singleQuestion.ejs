@@ -1,24 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include("../partials/head") %>
-    <link rel="stylesheet" href="/global.css" />
-    <title>Home page</title>
-  </head>
 
-  <body>
-    <%- include("../partials/navbar") %>
+<head>
+  <%- include("../partials/head") %>
+    <link rel="stylesheet" href="/global.css" />
+    <title>Single Page</title>
+</head>
+
+<body>
+  <%- include("../partials/navbar") %>
 
     <div class="questions-list">
       <div class="question-item">
         <div class="question-title"><%- data[0].title %></div>
         <div class="question-description"><%- data[0].description %></div>
         <div class="question-image">
-          <img
-            src="http://localhost:3001/<%- data[0].image %>"
-            alt="Questions image"
-            height="350"
-          />
+          <img src="http://localhost:3001/<%- data[0].image %>" alt="Questions image" height="350" />
         </div>
         <br />
         <div class="question-author">
@@ -32,34 +29,51 @@
       </div>
 
       <div class="answer-list">
-        <% answers.forEach((answer) => { %>
-        <div class="answer-item">
-          <div class="answer-text">
-            <p><%- answer.answerText %></p>
+        <% answers.forEach((answer)=> { %>
+          <div class="answer-item">
+            <div class="answer-text">
+              <p><%- answer.answerText %></p>
+            </div>
+            <div class="answer-author">
+              Answer by: <i><%- answer.user.username %></i>
+            </div>
+            <div class="answer-date">
+              Posted on:
+              <i><%- new Date(answer.createdAt).toLocaleDateString() %></i>
+
+              <button onclick="likePost(<%= answer.id %> )">Like</button>
+              <span id="likes_<%- answer.id%>">
+                <%- likes %></span>
+
+            </div>
           </div>
-          <div class="answer-author">
-            Answer by: <i><%- answer.user.username %></i>
-          </div>
-          <div class="answer-date">
-            Posted on:
-            <i><%- new Date(answer.createdAt).toLocaleDateString() %></i>
-          </div>
-        </div>
-        <% }) %>
+          <% }) %>
       </div>
 
       <div class="answer-list">
         <form action="/answer/<%- data[0].id %>" method="post">
-          <textarea
-            name="answer"
-            id="answer"
-            cols="20"
-            rows="10"
-            required
-          ></textarea>
+          <textarea name="answer" id="answer" cols="20" rows="10" required></textarea>
           <input type="submit" value="Post Answer" />
         </form>
       </div>
     </div>
-  </body>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const cookie = document.cookie.split("=")
+      function likePost(answerId) {
+        socket.emit("like", {
+          answerId,
+          cookie: cookie[1]
+        })
+      }
+
+      socket.on("likeUpdate", ({ likesCount, answerId }) => {
+        const likes = document.getElementById(`likes_${answerId}`);
+        likes.textContent = likesCount;
+      })
+    </script>
+</body>
+
 </html>
