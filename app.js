@@ -14,7 +14,7 @@ const questionRoute = require("./routes/questionRoute");
 const answerRoute = require("./routes/answerRoute");
 const { questions, users, answers, sequelize } = require("./database/index");
 const socketio = require("socket.io");
-const { QueryTypes } = require("sequelize");
+const { QueryTypes, where } = require("sequelize");
 require("./database/index");
 
 app.set("view engine", "ejs");
@@ -71,7 +71,6 @@ app.use(express.static("./storage"));
 const server = app.listen(PORT, () => {
   console.log(`server listening at ${PORT}`);
 });
-
 const io = socketio(server, {
   cors: {
     origin: "*",
@@ -80,45 +79,41 @@ const io = socketio(server, {
 
 io.on("connection", (socket) => {
   socket.on("like", async ({ answerId, cookie }) => {
-    const answer = await answers.findByPk(id);
+    const answer = await answers.findByPk(answerId);
     if (answer && cookie) {
-      const decryptedResult = await promisify(jwt.verify)(
-        cookie,
-        process.env.JWT_SECRET
-      );
+      const decryptedResult = await promisify(jwt.verify)(cookie, "hahaha");
       if (decryptedResult) {
-        sequelize.query(
-          `INSERT INTO likes_${answerId}
-(userId VALUES(${decryptedResult.id}))`,
+        const user = await sequelize.query(
+          `SELECT * FROM likes_${answerId} WHERE userId=${decryptedResult.id}`,
           {
-            type: QueryTypes.INSERT,
+            type: QueryTypes.SELECT,
           }
         );
-      }
-
-      const likeCount = likes.length;
-      const user = await sequelize.query(
-        `SELECT * FROM likes_${answerId} WHERE userId=${decryptedResult.id}`,
-        {
-          type: QueryTypes.SELECT,
+        if (user.length === 0) {
+          await sequelize.query(
+            `INSERT INTO likes_${answerId} (userId) VALUES(${decryptedResult.id})`,
+            {
+              type: QueryTypes.INSERT,
+            }
+          );
         }
-      );
-      if (user.length === 0) {
-        await sequelize.query(
-          `INSERT INTO likes_${answerId} (userId) VALUES(${decryptedResult.id})`,
-          {
-            type: QueryTypes.INSERT,
-          }
-        );
       }
-
       const likes = await sequelize.query(`SELECT * FROM likes_${answerId}`, {
         type: QueryTypes.SELECT,
       });
 
       const likesCount = likes.length;
-      console.log(likeCount);
-
+      await answers.update(
+        {
+          likes: likesCount,
+        },
+        {
+          where: {
+            id: answerId,
+          },
+        }
+      );
+      console.log(likesCount);
       socket.emit("likeUpdate", { likesCount, answerId });
     }
   });

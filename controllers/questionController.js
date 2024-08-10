@@ -49,10 +49,19 @@ exports.renderSingleQuestionPage = async (req, res) => {
     ],
   });
 
-  const likes = await sequelize.query(`SELECT * FROM likes_${id}`, {
-    type: QueryTypes.SELECT,
-  });
-  const count = likes.length;
+  let likes;
+  let count = 0;
+
+  try {
+    likes = await sequelize.query(`SELECT * FROM likes_${id}`, {
+      type: QueryTypes.SELECT,
+    });
+    if (likes.length) {
+      count = likes.length;
+    }
+  } catch (error) {
+    console.log(error);
+  }
 
   const answersData = await answers.findAll({
     where: {
