@@ -2,6 +2,7 @@ const {
   renderAskQuestionPage,
   askQuestion,
   renderSingleQuestionPage,
+  renderEditQuestionPage,
 } = require("../controllers/questionController");
 const { isAuthenticated } = require("../middleware/isAuthenticated");
 
@@ -16,5 +17,6 @@ router
   .post(isAuthenticated, upload.single("image"), askQuestion);
 
 router.route("/question/:id").get(renderSingleQuestionPage);
+router.route("/edit/:id").get(renderEditQuestionPage);
 
 module.exports = router;

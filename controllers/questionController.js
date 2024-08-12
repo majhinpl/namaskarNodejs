@@ -1,5 +1,6 @@
 const { where, QueryTypes } = require("sequelize");
 const { questions, users, answers, sequelize } = require("../database");
+const fs = require("fs");
 
 exports.renderAskQuestionPage = (req, res) => {
   res.render("questions/askQuestion");
@@ -79,4 +80,75 @@ exports.renderSingleQuestionPage = async (req, res) => {
     answers: answersData,
     likes: count,
   });
+};
+
+exports.renderEditQuestionPage = async (req, res) => {
+  // find the blog with coming id
+  const id = req.params.id;
+  const existingQuestion = await questions.findAll({
+    where: {
+      id: id,
+    },
+  });
+  res.render("questions/editQuestion", {
+    existingQuestion: existingQuestion,
+  });
+};
+
+exports.haldleEditQuestion = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { title, description } = req.body;
+    let fileName;
+    if (req.file) {
+      fileName = req.file.filename;
+    }
+    const editQuestion = await questions.findAll({
+      where: {
+        id: id,
+      },
+    });
+
+    const oldData = await questions.findAll({
+      where: {
+        id: id,
+      },
+    });
+    console.log(oldData);
+
+    const oldFileName = oldData[0].image;
+
+    const lengthToCut = "http://localhost:3001/".length;
+
+    const oldFileNameAfterCut = oldFileName.slice(lengthToCut);
+
+    if (fileName) {
+      // delete old because naya aairaxa
+      fs.unlink("./uploads/" + oldFileNameAfterCut, (err) => {
+        if (err) {
+          console.log("error occured", err);
+        } else {
+          console.log("Old File Deleted successfully");
+        }
+      });
+    }
+
+    await questions.update(
+      {
+        title,
+        description,
+        image: fileName ? process.env.BACKEND_URL + fileName : oldFileName,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+
+    res.redirect("/questions/editQuestion/" + id);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error loading the edit question page");
+  }
 };
