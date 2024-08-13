@@ -2,22 +2,29 @@
 <html lang="en">
 
 <head>
-    <%- include("../partials/head") %>
-        <link rel="stylesheet" href="/global.css">
-        <title>edit your Question</title>
+  <%- include("../partials/head") %>
+    <link rel="stylesheet" href="/global.css" />
+    <title>Edit your Question</title>
 </head>
 
 <body>
-    <%- include("../partials/navbar") %>
-        <div class="home-container">
-            <form>
-                <input type="text" name="title" placeholder="Enter your question" required>
-                <input type="file" name="image" required>
-                <textarea name="description" id="description" cols="30" rows="10"
-                    placeholder="Describe your question..."></textarea>
-                <input type="submit" value="Ask Question">
-            </form>
-        </div>
+  <%- include("../partials/navbar") %>
+    <div class="container">
+      <h1>Edit Your Question</h1>
+      <form action="/edit/<%= question[0].id %>" method="POST" enctype="multipart/form-data">
+        <input type="text" name="title" placeholder="Enter your question" value="<%= question.title %>" required />
+        <textarea name="description" cols="30" rows="10" placeholder="Describe your question..."
+          required><%= question.description %></textarea>
+
+        <label>Current Image:</label>
+        <img src="<%= question.image %>" alt="Current Image" width="200">
+
+        <label>Upload New Image (if needed):</label>
+        <input type="file" name="image" />
+
+        <input type="submit" value="Update Question" />
+      </form>
+    </div>
 </body>
 
 </html>

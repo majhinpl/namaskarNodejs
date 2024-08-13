@@ -8,23 +8,36 @@
 </head>
 
 <body>
-  <%- include("./partials/navbar") %>
-    <div class="home-container">
-      <p style="color: green;"><%- success %></p>
-      <h1>Welcome to Our Website</h1>
-      <p>This is the home page.</p>
+  <header>
+    <div class="container"><%- include("./partials/navbar") %></div>
+    <div class="headings container">
+      <div class="question-summary">
+        <h2>All Questions</h2>
+        <span>24,212,245 questions</span>
+      </div>
+      <div class="cta">
+        <a href="/askQuestion">
+          <h2>Ask Questions</h2>
+        </a>
+      </div>
     </div>
+  </header>
 
-    <div class="questions-list">
-      <% data.forEach((item)=> { %>
-        <div class="question-item" onclick="window.location.href=`/question/<%- item.id %>`">
-          <div class="question-title"><%- item.title %></div>
-          <div class="question-author">
-            Asked by: <i><%- item.user.username %></i>
+  <main>
+    <section class="container">
+      <p style="color: green"><%- success %></p>
+      <div class="questions-list">
+        <% data.forEach((item)=> { %>
+          <div class="question-item" onclick="window.location.href=`/question/<%- item.id %>`">
+            <div class="question-title"><%- item.title %></div>
+            <div class="question-author">
+              Asked by: <i><%- item.user.username %></i>
+            </div>
           </div>
-        </div>
-        <% }) %>
-    </div>
+          <% }) %>
+      </div>
+    </section>
+  </main>
 </body>
 
 </html>

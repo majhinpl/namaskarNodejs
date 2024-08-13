@@ -3,6 +3,8 @@ const {
   askQuestion,
   renderSingleQuestionPage,
   renderEditQuestionPage,
+  haldleEditQuestion,
+  handleEditQuestion,
 } = require("../controllers/questionController");
 const { isAuthenticated } = require("../middleware/isAuthenticated");
 
@@ -17,6 +19,10 @@ router
   .post(isAuthenticated, upload.single("image"), askQuestion);
 
 router.route("/question/:id").get(renderSingleQuestionPage);
-router.route("/edit/:id").get(renderEditQuestionPage);
+
+router
+  .route("/edit/:id")
+  .get(renderEditQuestionPage)
+  .post(upload.single("image"), handleEditQuestion); // Ensure file upload is handled
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const { where, QueryTypes } = require("sequelize");
 const { questions, users, answers, sequelize } = require("../database");
 const fs = require("fs");
+const path = require("path");
 
 exports.renderAskQuestionPage = (req, res) => {
   res.render("questions/askQuestion");
@@ -83,72 +84,75 @@ exports.renderSingleQuestionPage = async (req, res) => {
 };
 
 exports.renderEditQuestionPage = async (req, res) => {
-  // find the blog with coming id
   const id = req.params.id;
-  const existingQuestion = await questions.findAll({
-    where: {
-      id: id,
-    },
-  });
-  res.render("questions/editQuestion", {
-    existingQuestion: existingQuestion,
-  });
+  console.log("Received ID:", id);
+
+  try {
+    const existingQuestion = await questions.findOne({
+      where: { id: id },
+    });
+
+    if (!existingQuestion) {
+      return res.status(404).send("Question not found");
+    }
+
+    res.render("questions/editQuestion", { question: existingQuestion });
+  } catch (error) {
+    console.error("Error fetching the question:", error);
+    res.status(500).send("An error occurred");
+  }
 };
 
-exports.haldleEditQuestion = async (req, res) => {
+exports.handleEditQuestion = async (req, res) => {
   try {
     const id = req.params.id;
     const { title, description } = req.body;
     let fileName;
+
     if (req.file) {
       fileName = req.file.filename;
     }
-    const editQuestion = await questions.findAll({
-      where: {
-        id: id,
-      },
+
+    const oldData = await questions.findOne({
+      where: { id: id },
     });
 
-    const oldData = await questions.findAll({
-      where: {
-        id: id,
-      },
-    });
-    console.log(oldData);
+    if (!oldData) {
+      return res.status(404).send("Question not found");
+    }
 
-    const oldFileName = oldData[0].image;
-
+    const oldFileName = oldData.image;
     const lengthToCut = "http://localhost:3001/".length;
-
     const oldFileNameAfterCut = oldFileName.slice(lengthToCut);
 
     if (fileName) {
-      // delete old because naya aairaxa
-      fs.unlink("./uploads/" + oldFileNameAfterCut, (err) => {
-        if (err) {
-          console.log("error occured", err);
-        } else {
-          console.log("Old File Deleted successfully");
+      // Delete old file if new file is uploaded
+      fs.unlink(
+        path.join(__dirname, "..", "uploads", oldFileNameAfterCut),
+        (err) => {
+          if (err) {
+            console.log("Error occurred while deleting old file:", err);
+          } else {
+            console.log("Old file deleted successfully");
+          }
         }
-      });
+      );
     }
 
     await questions.update(
       {
         title,
         description,
-        image: fileName ? process.env.BACKEND_URL + fileName : oldFileName,
+        image: fileName ? "http://localhost:3001/" + fileName : oldFileName,
       },
       {
-        where: {
-          id: id,
-        },
+        where: { id: id },
       }
     );
 
-    res.redirect("/questions/editQuestion/" + id);
+    res.redirect("/questions/" + id);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error loading the edit question page");
+    console.error("Error updating the question:", error);
+    res.status(500).send("Error updating the question");
   }
 };

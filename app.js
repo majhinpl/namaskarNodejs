@@ -71,6 +71,7 @@ app.use(express.static("./storage"));
 const server = app.listen(PORT, () => {
   console.log(`server listening at ${PORT}`);
 });
+
 const io = socketio(server, {
   cors: {
     origin: "*",
@@ -81,7 +82,10 @@ io.on("connection", (socket) => {
   socket.on("like", async ({ answerId, cookie }) => {
     const answer = await answers.findByPk(answerId);
     if (answer && cookie) {
-      const decryptedResult = await promisify(jwt.verify)(cookie, "hahaha");
+      const decryptedResult = await promisify(jwt.verify)(
+        cookie,
+        process.env.JWT_SECRET
+      );
       if (decryptedResult) {
         const user = await sequelize.query(
           `SELECT * FROM likes_${answerId} WHERE userId=${decryptedResult.id}`,
