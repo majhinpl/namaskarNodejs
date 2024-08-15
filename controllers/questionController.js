@@ -2,6 +2,7 @@ const { QueryTypes } = require("sequelize");
 const { questions, users, answers, sequelize } = require("../database");
 const fs = require("fs");
 const path = require("path");
+const { cloudinary } = require("../cloudinary");
 
 exports.renderAskQuestionPage = (req, res) => {
   res.render("questions/askQuestion");
@@ -14,7 +15,7 @@ exports.askQuestion = async (req, res) => {
   const userId = req.userId;
   const fileName = req.file.filename;
 
-  const result = await CloudinaryStorage.v2.uploader.upload(req.file.path);
+  const result = await cloudinary.v2.uploader.upload(req.file.path);
   console.log(result);
 
   if (!title || !description) {

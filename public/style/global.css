@@ -26,11 +26,16 @@ a:hover {
 }
 
 .navbar .logo a {
-  color: #ffeb3b;
+  color: #fff;
   /* Yellow */
   text-decoration: none;
   font-size: 24px;
   font-weight: bold;
+}
+
+.question-summary-heading {
+  color: #ffeb3b;
+
 }
 
 .nav-links {
@@ -55,14 +60,10 @@ a:hover {
 }
 
 .container {
-  width: 1200px;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0;
-}
-
-.question-summary h2,
-span {
-  color: #fff;
+  padding: 0 15px;
 }
 
 header {
@@ -74,6 +75,7 @@ header {
   display: flex;
   align-items: start;
   justify-content: space-around;
+  flex-wrap: wrap;
 }
 
 /* Home Page Styles */
@@ -103,6 +105,7 @@ form textarea {
 }
 
 form input[type="submit"] {
+  background-color: #4caf50;
   /* Green */
   color: white;
   padding: 10px 15px;
@@ -153,6 +156,69 @@ form input[type="submit"]:hover {
   text-decoration: underline;
 }
 
-.question-image {
-  object-fit: cover;
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .headings {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .home-container {
+    padding: 30px;
+    margin: 20px auto;
+    max-width: 90%;
+  }
+
+  form input[type="submit"] {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .question-author {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .question-item,
+  .answer-item {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 10px;
+  }
+
+  .navbar .logo a {
+    font-size: 20px;
+  }
+
+  .nav-links a {
+    font-size: 16px;
+  }
+
+  .home-container {
+    padding: 20px;
+    margin: 15px auto;
+    max-width: 100%;
+  }
+
+  .question-title {
+    font-size: 18px;
+  }
+
+  .question-author a {
+    font-size: 20px;
+  }
 }
