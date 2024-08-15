@@ -14,17 +14,15 @@
         <div class="question-title"><%- data[0].title %></div>
         <div class="question-description"><%- data[0].description %></div>
         <div class="question-image">
-          <img
-            src="http://localhost:3001/<%- data[0].image %>"
-            alt="Questions image"
-            height="350"
-          />
+          <img src="<%- data[0].image %>" alt="Questions image" height="350" />
         </div>
         <br />
         <div class="question-author">
-          <i>Author : <%- data[0].username %></i>
-          <a href="/edit/editQuestion"><i class="ri-edit-box-line"></i></a>
-          <a href="#"><i class="ri-delete-bin-line"></i></a>
+          <i>Author : <%- data[0].user.username %></i>
+          <a href="/edit/<%- data[0].id %>"><i class="ri-edit-box-line"></i></a>
+          <a href="/delete/<%- data[0].id %>"
+            ><i class="ri-delete-bin-line"></i
+          ></a>
         </div>
         <div class="question-date">
           <i>

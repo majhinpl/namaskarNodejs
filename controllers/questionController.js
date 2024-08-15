@@ -1,4 +1,4 @@
-const { where, QueryTypes } = require("sequelize");
+const { QueryTypes } = require("sequelize");
 const { questions, users, answers, sequelize } = require("../database");
 const fs = require("fs");
 const path = require("path");
@@ -9,10 +9,13 @@ exports.renderAskQuestionPage = (req, res) => {
 
 exports.askQuestion = async (req, res) => {
   const { title, description } = req.body;
-  console.log(req.body);
   console.log(req.file);
+
   const userId = req.userId;
   const fileName = req.file.filename;
+
+  const result = await CloudinaryStorage.v2.uploader.upload(req.file.path);
+  console.log(result);
 
   if (!title || !description) {
     return res.send("Please provide required field");
@@ -21,7 +24,7 @@ exports.askQuestion = async (req, res) => {
   await questions.create({
     title,
     description,
-    image: fileName,
+    image: result.url,
     userId,
   });
   res.redirect("/");
@@ -84,11 +87,10 @@ exports.renderSingleQuestionPage = async (req, res) => {
 };
 
 exports.renderEditQuestionPage = async (req, res) => {
-  const id = req.params.id;
-  console.log("Received ID:", id);
+  const { id } = req.params;
 
   try {
-    const existingQuestion = await questions.findOne({
+    const existingQuestion = await questions.findAll({
       where: { id: id },
     });
 
@@ -107,52 +109,67 @@ exports.handleEditQuestion = async (req, res) => {
   try {
     const id = req.params.id;
     const { title, description } = req.body;
-    let fileName;
 
-    if (req.file) {
-      fileName = req.file.filename;
-    }
-
-    const oldData = await questions.findOne({
+    const oldData = await questions.findAll({
       where: { id: id },
     });
 
-    if (!oldData) {
-      return res.status(404).send("Question not found");
+    let fileName;
+    if (req.file) {
+      fileName = req.file.filename;
+
+      const oldFileName = oldData[0].image;
+      const lengthToCut = "http://localhost:3001/".length;
+      const oldFileNameAfterCut = oldFileName.slice(lengthToCut);
+
+      if (fileName) {
+        // Delete old file if new file is uploaded
+        fs.unlink(
+          path.join(__dirname, "..", "storage", oldFileNameAfterCut),
+          (err) => {
+            if (err) {
+              console.log("Error occurred while deleting old file:", err);
+            } else {
+              console.log("Old file deleted successfully");
+            }
+          }
+        );
+      }
+    } else {
+      fileName = oldData[0].image;
     }
 
-    const oldFileName = oldData.image;
-    const lengthToCut = "http://localhost:3001/".length;
-    const oldFileNameAfterCut = oldFileName.slice(lengthToCut);
-
-    if (fileName) {
-      // Delete old file if new file is uploaded
-      fs.unlink(
-        path.join(__dirname, "..", "uploads", oldFileNameAfterCut),
-        (err) => {
-          if (err) {
-            console.log("Error occurred while deleting old file:", err);
-          } else {
-            console.log("Old file deleted successfully");
-          }
-        }
-      );
+    if (!oldData) {
+      return res.status(404).send("Question not found");
     }
 
     await questions.update(
       {
         title,
         description,
-        image: fileName ? "http://localhost:3001/" + fileName : oldFileName,
+        image: fileName ? fileName : oldFileName,
       },
       {
-        where: { id: id },
+        where: {
+          id: id,
+        },
       }
     );
 
-    res.redirect("/questions/" + id);
+    res.redirect("/question/" + id);
   } catch (error) {
     console.error("Error updating the question:", error);
     res.status(500).send("Error updating the question");
   }
+};
+
+exports.handleDeleteQuestion = async (req, res) => {
+  const id = req.params.id;
+  await questions.destroy({
+    where: {
+      id: id,
+    },
+  });
+
+  res.redirect("/");
 };
